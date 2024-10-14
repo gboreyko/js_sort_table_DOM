@@ -8,27 +8,38 @@ function convertToNumber(currency) {
 }
 
 thead.addEventListener('click', (e) => {
+  if (e.target.tagName !== 'TH') {
+    return;
+  }
+
   const title = e.target.textContent;
   const index = e.target.cellIndex;
 
-  const rows = [...tbody.rows];
-  const enlargedRows = rows.map((row) => [row.cells[index].textContent, row]);
+  const enlargedRows = [...tbody.rows].map((row) => {
+    const valueCell = row.cells[index].textContent;
 
-  enlargedRows.sort((row1, row2) => {
+    switch (title) {
+      case 'Salary':
+        return [convertToNumber(valueCell), row];
+
+      default:
+        return [valueCell, row];
+    }
+  });
+
+  const copyRows = [...enlargedRows].sort((row1, row2) => {
     switch (title) {
       case 'Name':
       case 'Position':
         return row1[0].localeCompare(row2[0]);
 
       case 'Age':
-        return row1[0] - row2[0];
-
       case 'Salary':
-        return convertToNumber(row1[0]) - convertToNumber(row2[0]);
+        return row1[0] - row2[0];
     }
   });
 
-  const sortRows = enlargedRows.map((item) => item[1]);
+  const sortRows = copyRows.map((item) => item[1]);
 
-  tbody.append(...sortRows);
+  tbody.replaceChildren(...sortRows);
 });
